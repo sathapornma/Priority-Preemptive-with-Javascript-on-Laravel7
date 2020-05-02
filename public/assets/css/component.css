@@ -1,0 +1,35 @@
+input {
+    background: #7c7c7c;
+    color: white;
+    text-indent: 5%;
+    border-radius: 5px;
+    border: transparent;
+    height: 35px;
+}
+
+input,
+#varstart {
+    width: 100px;
+}
+
+input[type=checkbox] {
+    background-color: #7c7c7c;
+    color: #fff;
+}
+
+input[type=checkbox]:checked:before {
+    background-color: rgb(0, 183, 255);
+    border-color: rgb(0, 183, 255);
+    color: #fff;
+}
+
+input[type=checkbox]:disabled:before {
+    transform: scale(1);
+    border-color: #aaa;
+}
+
+input[type=checkbox]:checked:disabled:before {
+    transform: scale(1);
+    background-color: rgb(255, 52, 52);
+    border-color: rgb(255, 52, 52);
+}
