@@ -28,8 +28,6 @@
                         </tr>
                     </thead>
                     <tbody class="tbprocess">
-                        <tr>
-                        </tr>
                     </tbody>
                 </table>
             </div>

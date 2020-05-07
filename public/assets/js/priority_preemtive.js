@@ -1,13 +1,16 @@
-var p = 0;
+var p = 1;
 var max = 5;
 var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4"];
 var cpuTime;
+var proc;
+var a, b, pr;
 
 $(function() {
     addPro();
     addPro();
     // add process!
     $(".add-pro").click(function() {
+        console.log(p)
         addPro();
         $("tbody .chart").remove();
     });
@@ -20,19 +23,22 @@ $(function() {
 
     //run process
     $(".run-pro").click(function() {
+        /*
         endTime = 3;
         cpuTime = setInterval(function() { makeTime() }, 1000);
+        */
+        console.log("Running");
+        getProc();
     });
 });
 
 function addPro() {
-    console.log("P" + p);
     //var checkbok = "<input type='checkbox' name='record'>";
-    let process = "<b class='num_process' id='" + p + "'>P" + p + "</b>";
-    let status = "<input type='text' class='status' name='' value='NEW' disabled>";
-    let arrival = "<input type='number' name='' value='0'>";
-    let brust = "<input type='number' name='' value='0'>";
-    let priority = "<input type='number' name='' value='1'>";
+    let process = "<b>P" + p + "</b>";
+    let status = "<input type='text' class='status' id='status_" + p + "' value='NEW' disabled>";
+    let arrival = "<input type='number' id='arr_" + p + "' value='0'>";
+    let brust = "<input type='number' id='brust_" + p + "' value='0'>";
+    let priority = "<input type='number' id='pri_" + p + "' value='1'>";
 
     let markup = "<tr>" +
         /*"<td>" + checkbok + "</td>" +*/
@@ -43,7 +49,7 @@ function addPro() {
         "<td>" + priority + "</td>" +
 
         +"</tr>";
-    if (p < max) {
+    if (p <= max) {
         $(".tprocess tbody").append(markup);
         p++;
     } else {
@@ -80,6 +86,27 @@ function makeTime() {
         clearInterval(cpuTime);
         $("#cpuStatus").text("Terminate!!");
         ganttChart();
+    }
+
+}
+
+function getProc() {
+    /*
+    i = 0;
+    t = $("#" + i).val();
+    console.log(t);
+    $("#cpuTime").text(t);*/
+
+    console.log(p);
+    for (let i = 1; i < p; i++) {
+        a = parseInt($("#arr_" + i).val());
+        b = parseInt($("#brust_" + i).val());
+        pr = parseInt($("#pri_" + i).val());
+
+        proc = [
+            [a, b, pr],
+        ];
+        console.log(proc);
     }
 
 }
