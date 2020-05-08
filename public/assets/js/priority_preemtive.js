@@ -1,16 +1,19 @@
-var p = 1;
+var p = 0;
 var max = 5;
-var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4"];
-var cpuTime;
+var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4", "#ff8f8f"];
+var cpuTime = 0;
 var proc;
-var a, b, pr;
+var arr, brust, pri; // in array
+var priPrev;
+
+
 
 $(function() {
     addPro();
     addPro();
     // add process!
     $(".add-pro").click(function() {
-        console.log(p)
+        //console.log(p)
         addPro();
         $("tbody .chart").remove();
     });
@@ -23,12 +26,11 @@ $(function() {
 
     //run process
     $(".run-pro").click(function() {
-        /*
-        endTime = 3;
-        cpuTime = setInterval(function() { makeTime() }, 1000);
-        */
-        console.log("Running");
-        getProc();
+
+        console.log("running");
+        getDataProcess();
+        Timer = setInterval(function() { timeCounter() }, 1000);
+
     });
 });
 
@@ -49,7 +51,7 @@ function addPro() {
         "<td>" + priority + "</td>" +
 
         +"</tr>";
-    if (p <= max) {
+    if (p < max) {
         $(".tprocess tbody").append(markup);
         p++;
     } else {
@@ -58,10 +60,14 @@ function addPro() {
 }
 
 function removePro() {
-    let c = confirm("You want delete?");
-    if (c == true) {
-        $(".tbprocess tr:last").remove();
-        p--;
+    if (p > 0) {
+        let c = confirm("You want delete?");
+        if (c == true) {
+            $(".tbprocess tr:last").remove();
+            p--;
+        }
+    } else {
+        alert("Sorry!! : Process is minimum " + p + ".");
     }
 }
 
@@ -71,42 +77,54 @@ function ganttChart() {
     for (let i = 0; i < p; i++) {
         makeChart = "<th class='chart' style='background-color:" + color[i] + "'>P" + i + "</th>";
         $(".tchart .tgantt-chart").append(makeChart);
-        no = i + 1;
-        makeNumChart = "<td class='chart text-right'>" + no + "</td>";
+        makeNumChart = "<td class='chart text-right'>" + i + "</td>";
         $(".tchart .tnumgantt-chart").append(makeNumChart);
     }
 }
 
-function makeTime() {
-    if (endTime >= 0) {
-        $("#cpuTime").text(endTime);
+function timeCounter() {
+    if (cpuTime >= 0) {
+        $("#cpuTime").text(cpuTime);
         $("#cpuStatus").text("Running...");
-        endTime--;
+        runProc(proc, cpuTime);
+        cpuTime--;
     } else {
-        clearInterval(cpuTime);
+        clearInterval(Timer);
         $("#cpuStatus").text("Terminate!!");
         ganttChart();
     }
 
 }
 
-function getProc() {
-    /*
-    i = 0;
-    t = $("#" + i).val();
-    console.log(t);
-    $("#cpuTime").text(t);*/
+function getDataProcess() {
+    //clear process
+    proc = [];
 
-    console.log(p);
-    for (let i = 1; i < p; i++) {
-        a = parseInt($("#arr_" + i).val());
-        b = parseInt($("#brust_" + i).val());
-        pr = parseInt($("#pri_" + i).val());
+    // get arrival ,brust ,pri
+    // set CPU Time
+    for (let i = 0; i < p; i++) {
+        arr = parseInt($("#arr_" + i).val());
+        brust = parseInt($("#brust_" + i).val());
+        pri = parseInt($("#pri_" + i).val());
 
-        proc = [
-            [a, b, pr],
-        ];
-        console.log(proc);
+        cpuTime = cpuTime + brust; //set cpuTime by brust
+        proc.push([arr, brust, pri]); // push to array
+    }
+    console.log(cpuTime);
+    //console.log(proc[1][0]); //[key][arrival]
+    console.log(proc);
+}
+
+function runProc(pro, ct) {
+    //priority preemptive
+    //alert(pro[0][0]);
+    for (let i = 0; i < p; i++) {
+        if (pro[i][0] == ct) {
+            priPrev = pro[i][2]; //priority
+            console.log("priority : " + priPrev);
+            //console.log("yes : " + "proc[" + i + "]" + " : " + ct);
+        } else
+            console.log("no : " + "proc[" + i + "]" + ": " + ct);
     }
 
 }

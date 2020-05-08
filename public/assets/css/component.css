@@ -33,3 +33,7 @@ input[type=checkbox]:checked:disabled:before {
     background-color: rgb(255, 52, 52);
     border-color: rgb(255, 52, 52);
 }
+
+td.chart.text-right {
+    padding: 0;
+}
