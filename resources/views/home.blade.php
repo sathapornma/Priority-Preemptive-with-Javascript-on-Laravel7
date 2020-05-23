@@ -9,9 +9,10 @@
     <br><br>
     <h2 class="text-center">Priority Preemptive</h2>
     <br>
-    <div class="text-right">
-        <button class="btn btn-danger remove-pro">Remove Process</button>
-        <button class="btn btn-primary add-pro">Add Process</button>
+    <div class="col-12">
+        <div class="text-right">
+            <a class="btn btn-warning" href="/history">History</a>
+        </div>
     </div>
     <br>
     <div class="row">
@@ -31,6 +32,8 @@
                     </tbody>
                 </table>
             </div>
+            <button class="btn btn-danger remove-pro">Remove Process</button>
+            <button class="btn btn-primary add-pro">Add Process</button>
             <button class="btn btn-success run-pro">Run Process</button>
         </div>
     </div>
@@ -49,6 +52,7 @@
         </div>
     </div>
     
-    <b >CPU Time : <span id="cpuTime"></span></b><br>
-    <b >CPU Status : <span id="cpuStatus"></span></b>
+    <b >CPU Time : <span id="cpuStartTime"> - </span></b><br>
+    <b >CPU End Time : <span id="cpuEndTime"> - </span></b><br>
+    <b >CPU Status : <span id="cpuStatus"> - </span></b>
 @endsection

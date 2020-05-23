@@ -14,6 +14,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::resource('/',"PriorityPreemtive");
-Route::get('/t',function(){
-    return view('test');
-});
+Route::resource('/history',"histories");

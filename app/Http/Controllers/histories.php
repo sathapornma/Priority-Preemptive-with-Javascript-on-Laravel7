@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\history;
+use App\history ;
 
-class PriorityPreemtive extends Controller
+class histories extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -14,7 +14,8 @@ class PriorityPreemtive extends Controller
      */
     public function index()
     {
-        return view("home");
+        $hists = history::all()->toArray();
+        return view('history',compact('hists'));
     }
 
     /**
@@ -22,6 +23,10 @@ class PriorityPreemtive extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function create()
+    {
+        //
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -31,14 +36,7 @@ class PriorityPreemtive extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,['amount'=>'required','avt'=>'required','awt'=>'required']);
-        $history1 = new history([
-            'amount' =>$request->get('amount'),
-            'avt' =>$request->get('avt'),
-            'awt' =>$request->get('awt')
-        ]);
-        $history1->save();
-        return back()->withInput();
+        //
     }
 
     /**
