@@ -2,10 +2,13 @@ var totalprocess = 0;
 var maximum = 5;
 var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4", "#ff8f8f"];
 var cpuStartTime, cpuEndTime;
-var proc;
+var proc, process = [];
 var arrivaltime, brusttime, priority; // in array
-var queue,
-    balance;
+var queue = [
+    [0, 0, 0]
+];
+var sortEqual = [];
+var check = 1;
 
 $(function() {
     addPro();
@@ -32,8 +35,8 @@ $(function() {
         $("tbody .chart").remove();
         getDataProcess();
 
+        //console.log(proc);
         Timer = setInterval(function() { timeCounter() }, 1000);
-
 
     });
 });
@@ -76,13 +79,8 @@ function removePro() {
 }
 
 function getDataProcess() {
-    //clear process
-    proc = [];
-    let arrPrev = 0,
-        priPrev = 0;
-    let a = [],
-        b = [];
 
+    proc = []; //Clear the process
     // get arrival ,brust ,pri
     // set CPU Time
     for (let i = 0; i < totalprocess; i++) {
@@ -91,28 +89,44 @@ function getDataProcess() {
         priority = parseInt($("#pri_" + i).val());
 
         cpuEndTime += brusttime; //set cpuStartTime by brust
-        proc.push([arrivaltime, brusttime, priority]); // push to array
+        proc.push([arrivaltime, brusttime, priority, i]); // push to array
 
     }
+    swapProcess();
 
-    //sort process with arrival
+}
+
+function swapProcess() {
+
+    process = []; //Clear the process
+    let arrPrev;
+    //Sort the process with arrival.
     proc.sort((a, b) => a[0] - b[0]);
-    //console.log(proc);
-    for (let i = 0; i < totalprocess; i++) {
-        if (proc[i][0] == arrPrev) {
-            if (proc[i][2] <= priPrev) {
-                a = proc.pop(); //Last
-                b = proc.pop(); //Prev
-                proc.push(a);
-                proc.push(b);
-            }
-        }
+    //Swap the process positions when arrival with equal values.
+    arrPrev = proc[0][0];
 
+    for (let i = 0; i < totalprocess; i++) {
+        if (proc[i][0] == arrPrev)
+            sortEqual.push(proc[i]);
+        else {
+            sortProcess();
+            process.push(proc[i]);
+        }
         arrPrev = proc[i][0];
-        priPrev = proc[i][2];
     }
 
-    console.log(proc);
+    process.sort((a, b) => a[0] - b[0]);
+    console.log(process);
+}
+
+function sortProcess() {
+    if (Array.isArray(sortEqual) && sortEqual.length) {
+        sortEqual.sort((a, b) => a[2] - b[2]);
+        for (let i = 0; i < sortEqual.length; i++) {
+            process.push(sortEqual[i]);
+        }
+        sortEqual = [];
+    }
 }
 
 function ganttChart() {
@@ -131,7 +145,7 @@ function timeCounter() {
         $("#cpuStartTime").text(cpuStartTime);
         $("#cpuEndTime").text(cpuEndTime);
         $("#cpuStatus").html("<b class='text-warning'>Running...</b>");
-        runProc(proc, cpuStartTime);
+        runProc(cpuStartTime);
         cpuStartTime++;
 
     } else {
@@ -142,32 +156,46 @@ function timeCounter() {
 
 }
 
-function runProc(pro, ct) {
-    let arrPrev = 0,
-        priPrev = 5;
-    let arrNow, brustNow, priNow;
-    queue = [];
+function runProc(ct) {
+    let i = ct;
 
-    /*
-        for (let i = 0; i < totalprocess; i++) {
-            if (pro[i][0] == ct && pro[i][2] <= priPrev) {
-                pro[i][1] -= ct;
-                queue.push(pro[i]);
-                //queue.sort((a, b) => a[2] - b[2]);
-                console.log("queue : ");
-                console.log(queue);
+    if (Array.isArray(queue) && queue.length) {
+        if (i < totalprocess) {
+            if (process[i][2] <= queue[0][2] || check == 1) {
+                process[i][1] -= 1; //pro brust time
+                console.log("Time : " + ct + " P " + process[i][3]);
+                if (process[i][1] != 0) {
+                    //new queue
+                    queue.push(process[i]);
+                    queue.reverse();
+                    queue.pop();
 
-                arrPrev = pro[i][0];
-                priPrev = pro[i][2];
+                    queue.sort((a, b) => a[2] - b[2]);
+                }
+                check = 0;
 
+            } else {
+                queue[0][1] -= 1; //queue brust time
+                console.log("Time : " + ct + " P " + queue[0][3]);
+                if (queue[0][1] == 0) {
+                    queue.reverse();
+                    queue.pop();
+                }
+                queue.push(process[i]);
+                queue.sort((a, b) => a[2] - b[2]);
             }
-        }*/
+        } else if (i >= totalprocess) {
 
+            queue[0][1] -= 1; //queue brust time
+            console.log("Time : " + ct + ", P" + queue[0][3]);
+            if (queue[0][1] == 0) {
+                queue.reverse();
+                queue.pop();
+            }
+            queue.sort((a, b) => a[2] - b[2]);
+        }
+
+        console.log(queue);
+
+    }
 }
-/*
-pb = [];
-pb.push([2, 5, 3]);
-pb.push([0, 2, 4]);
-pb.push([15, 2, 1]);
-console.log(pb.sort((a, b) => a[0] - b[0]));
-*/
