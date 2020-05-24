@@ -37,3 +37,24 @@ input[type=checkbox]:checked:disabled:before {
 td.chart.text-right {
     padding: 0;
 }
+
+.progress {
+    font-size: 14pt;
+    height: 30px;
+}
+
+.progress-bar {
+    padding: 5px;
+}
+
+.READY {
+    background-color: #dc3545;
+}
+
+.RUNNING {
+    background-color: #ffc107;
+}
+
+.TERMINATED {
+    background-color: #28a745;
+}

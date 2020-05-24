@@ -39,6 +39,10 @@
     </div>
     <hr>
     <h4>Gantt Chart</h4>
+    <div class="progress">
+        
+    </div>
+
     <div class="row">
         <div class="col-12">
             <div class="gantt-chart table-responsive">
@@ -50,6 +54,7 @@
                 </table>
             </div>
         </div>
+        
     </div>
     
     <b >CPU Time : <span id="cpuStartTime"> - </span></b><br>

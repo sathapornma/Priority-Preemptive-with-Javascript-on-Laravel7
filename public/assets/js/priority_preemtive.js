@@ -1,5 +1,8 @@
-var totalprocess = 0;
-var maximum = 5;
+var totalprocess = 0,
+    maximum = 5,
+    check = 1,
+    pPrev = -1;
+sPrev = '';
 var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4", "#ff8f8f"];
 var cpuStartTime, cpuEndTime;
 var proc, process = [];
@@ -8,22 +11,20 @@ var queue = [
     [0, 0, 0]
 ];
 var sortEqual = [];
-var check = 1;
 
 $(function() {
     addPro();
     addPro();
+    //$(".progress").remove();
     // add process!
     $(".add-pro").click(function() {
         //console.log(p)
         addPro();
-        $("tbody .chart").remove();
     });
 
     // remove process!
     $(".remove-pro").click(function() {
         removePro();
-        $("tbody .chart").remove();
     });
 
     //run process
@@ -31,10 +32,9 @@ $(function() {
         console.log("running");
         cpuStartTime = 0;
         cpuEndTime = 0;
-
-        $("tbody .chart").remove();
         getDataProcess();
 
+        //ganttChart();
         //console.log(proc);
         Timer = setInterval(function() { timeCounter() }, 1000);
 
@@ -42,15 +42,13 @@ $(function() {
 });
 
 function addPro() {
-    //var checkbok = "<input type='checkbox' name='record'>";
-    let process = "<b>P" + totalprocess + "</b>";
-    let status = "<input type='text' class='status' id='status_" + totalprocess + "' value='NEW' disabled>";
+    let process = "<input class='text-center' style='width:" + 40 + "px; background-color:" + color[totalprocess] + "' value='P" + totalprocess + "' disabled>";
+    let status = "<input type='text' class='snew' id='status_" + totalprocess + " status' value='NEW' disabled>";
     let arr = "<input type='number' id='arr_" + totalprocess + "' value='0'>";
     let bru = "<input type='number' id='brust_" + totalprocess + "' value='0'>";
     let pri = "<input type='number' id='pri_" + totalprocess + "' value='1'>";
 
     let markup = "<tr>" +
-        /*"<td>" + checkbok + "</td>" +*/
         "<td>" + process + "</td>" +
         "<td>" + status + "</td>" +
         "<td>" + arr + "</td>" +
@@ -129,15 +127,11 @@ function sortProcess() {
     }
 }
 
-function ganttChart() {
+function ganttChart(ct, pp) {
     let makeChart;
-    $("tbody .chart").remove();
-    for (let i = 0; i < totalprocess; i++) {
-        makeChart = "<th class='chart' style='background-color:" + color[i] + "'>P" + i + "</th>";
-        $(".tchart .tgantt-chart").append(makeChart);
-        makeNumChart = "<td class='chart text-right'>" + i + "</td>";
-        $(".tchart .tnumgantt-chart").append(makeNumChart);
-    }
+    makeChart = "<div class='progress-bar progress-bar-striped progress-bar-animated' role='progressbar' style='width:" + ct + 10 + "%; background-color:" + color[pp] + "' aria-valuenow='" + ct + "' aria-valuemin=" + 0 + "' aria-valuemax='100'>" + ct + "</div>";
+    $(".progress").append(makeChart);
+
 }
 
 function timeCounter() {
@@ -151,7 +145,6 @@ function timeCounter() {
     } else {
         clearInterval(Timer);
         $("#cpuStatus").html("<b class='text-success'>Terminate !!</b>");
-        ganttChart();
     }
 
 }
@@ -162,8 +155,11 @@ function runProc(ct) {
     if (Array.isArray(queue) && queue.length) {
         if (i < totalprocess) {
             if (process[i][2] <= queue[0][2] || check == 1) {
+                changeStatus(process[i][3], 'READY');
                 process[i][1] -= 1; //pro brust time
                 console.log("Time : " + ct + " P " + process[i][3]);
+                ganttChart(ct, process[i][3]);
+                changeStatus(process[i][3], 'RUNNING');
                 if (process[i][1] != 0) {
                     //new queue
                     queue.push(process[i]);
@@ -171,15 +167,20 @@ function runProc(ct) {
                     queue.pop();
 
                     queue.sort((a, b) => a[2] - b[2]);
+                } else {
+                    changeStatus(process[i][3], 'TERMINATED');
                 }
                 check = 0;
 
             } else {
                 queue[0][1] -= 1; //queue brust time
                 console.log("Time : " + ct + " P " + queue[0][3]);
+                ganttChart(ct, queue[0][3]);
+                changeStatus(queue[0][3], 'RUNNING');
                 if (queue[0][1] == 0) {
                     queue.reverse();
                     queue.pop();
+                    changeStatus(queue[0][3], 'TERMINATED');
                 }
                 queue.push(process[i]);
                 queue.sort((a, b) => a[2] - b[2]);
@@ -188,9 +189,13 @@ function runProc(ct) {
 
             queue[0][1] -= 1; //queue brust time
             console.log("Time : " + ct + ", P" + queue[0][3]);
+            ganttChart(ct, queue[0][3]);
+            changeStatus(queue[0][3], 'RUNNING');
+
             if (queue[0][1] == 0) {
                 queue.reverse();
                 queue.pop();
+                changeStatus(queue[0][3], 'TERMINATED');
             }
             queue.sort((a, b) => a[2] - b[2]);
         }
@@ -198,4 +203,12 @@ function runProc(ct) {
         console.log(queue);
 
     }
+}
+
+function changeStatus(p, s) {
+    $("#status_" + p).attr('class', s);
+    $("#status_" + p).val(s);
+
+    pPrev = p;
+
 }
