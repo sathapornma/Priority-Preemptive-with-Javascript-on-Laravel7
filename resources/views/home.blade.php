@@ -40,8 +40,10 @@
     <hr>
     <h4>Gantt Chart</h4>
     <div class="progress"></div>
-    
+    <br><br>
     <b >CPU Time : <span id="cpuStartTime"> - </span></b><br>
     <b >CPU End Time : <span id="cpuEndTime"> - </span></b><br>
-    <b >CPU Status : <span id="cpuStatus"> - </span></b>
+    <b >CPU Status : <span id="cpuStatus"> - </span></b><br>
+    <hr>
+    <b >Turn Around Time : <span id="TurnAroundTime"> - </span></b><br><br><br>
 @endsection

@@ -1,11 +1,16 @@
 var totalprocess = 0,
     maximum = 5,
     check = 1,
-    pPrev = [];
+    tt = 0,
+    wt = 0,
+    pPrev = [],
+    tp = [],
+    wp = [];
 var cpuStartTime, cpuEndTime;
 var arrivaltime, brusttime, priority; // in array
 var proc = [],
     process = [],
+    newPro = [],
     sortEqual = [],
     queue = [
         [0, 0, 0]
@@ -31,7 +36,6 @@ $(function() {
         cpuStartTime = 0;
         cpuEndTime = 0;
         getDataProcess();
-
         Timer = setInterval(function() { timeCounter() }, 1000);
 
     });
@@ -84,6 +88,8 @@ function getDataProcess() {
 
         cpuEndTime += brusttime; //set cpuStartTime by brust
         proc.push([arrivaltime, brusttime, priority, i]); // push to array
+        newPro.push([arrivaltime, brusttime, priority, i, 0, 0]); // push to array
+
 
     }
     swapProcess();
@@ -110,7 +116,7 @@ function swapProcess() {
     }
 
     process.sort((a, b) => a[0] - b[0]);
-    console.log(process);
+    //console.log(process);
 }
 
 function sortProcess() {
@@ -165,7 +171,8 @@ function runProc(ct) {
                     queue.sort((a, b) => a[2] - b[2]);
                 }
                 if (process[i][1] == 0) {
-                    changeStatus(process[i][3], );
+                    changeStatus(process[i][3], process[i][1]);
+                    TurnAroundTime(ct, process[i][3]);
                 }
                 pPrev = [process[i][3], process[i][1]];
                 check = 0;
@@ -178,6 +185,7 @@ function runProc(ct) {
                 ganttChart(ct, queue[0][3]);
                 if (queue[0][1] == 0) {
                     changeStatus(queue[0][3], queue[0][1]);
+                    TurnAroundTime(ct, queue[0][3]);
                     queue.reverse();
                     queue.pop();
                 }
@@ -191,19 +199,19 @@ function runProc(ct) {
             changeStatus(queue[0][3], queue[0][1]);
             console.log("Time : " + ct + ", P" + queue[0][3]);
             ganttChart(ct, queue[0][3]);
+            pPrev = [queue[0][3], queue[0][1]];
 
             if (queue[0][1] == 0) {
                 changeStatus(queue[0][3], queue[0][1]);
+                TurnAroundTime(ct, queue[0][3]);
                 queue.reverse();
                 queue.pop();
             }
 
-            pPrev = [queue[0][3], queue[0][1]];
             queue.sort((a, b) => a[2] - b[2]);
 
         }
 
-        console.log(queue);
     }
 }
 
@@ -224,5 +232,33 @@ function changeStatus(p, s) {
 
 
 
+
+}
+
+function TurnAroundTime(ct, p) {
+    //console.log(newPro);
+    ct++;
+    let cal, c = 0;
+
+    if (newPro[p][4] == 0) {
+        cal = ct - newPro[p][0];
+        newPro[p][4] = 1;
+        newPro[p][5] = cal;
+    }
+
+    for (let i = 0; i < totalprocess; i++) {
+        if (newPro[i][4] == 0) {
+            tt = 0;
+            break;
+        }
+        if (newPro[i][4] == 1) {
+            tt += newPro[i][5];
+            c = 1;
+        }
+    }
+
+    if (c == 1)
+        $('#TurnAroundTime').text(tt / totalprocess)
+        //console.log();
 
 }
