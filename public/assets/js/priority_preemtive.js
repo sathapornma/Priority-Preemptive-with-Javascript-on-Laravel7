@@ -168,7 +168,6 @@ function runProc() {
 
     console.log("Process_no\tStart_time\tComplete_time",
         "\tTurn_Around_Time\tWaiting_Time");
-    proc.sort();
     for (let i = 0; i < totalprocess; i++) {
         wavg += wt[i];
         tavg += tat[i];
