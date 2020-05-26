@@ -3,14 +3,14 @@ var totalprocess = 0,
     check = 1,
     tt = 0,
     wt = 0,
-    pPrev = [],
-    tp = [],
-    wp = [];
+    waitPrev = 0,
+    pPrev = [];
 var cpuStartTime, cpuEndTime;
 var arrivaltime, brusttime, priority; // in array
 var proc = [],
     process = [],
-    newPro = [],
+    turnPro = [],
+    waitPro = [],
     sortEqual = [],
     queue = [
         [0, 0, 0]
@@ -88,10 +88,12 @@ function getDataProcess() {
 
         cpuEndTime += brusttime; //set cpuStartTime by brust
         proc.push([arrivaltime, brusttime, priority, i]); // push to array
-        newPro.push([arrivaltime, brusttime, priority, i, 0, 0]); // push to array
-
-
+        // [arrivaltime, brusttime, priority, i, checkstate, cal]
+        turnPro.push([arrivaltime, brusttime, priority, i, 0, 0]);
+        // [arrivaltime, i, cal, status]
+        waitPro.push([arrivaltime, i, 0, 1]);
     }
+
     swapProcess();
 
 }
@@ -160,8 +162,9 @@ function runProc(ct) {
                 changeStatus(process[i][3], process[i][1]);
                 process[i][1] -= 1; //pro brust time
                 changeStatus(process[i][3], process[i][1]);
-                console.log("Time : " + ct + " P " + process[i][3]);
                 ganttChart(ct, process[i][3]);
+                WaitingTime(ct, process[i][3]);
+                console.log("Time : " + ct + " P" + process[i][3]);
                 if (process[i][1] != 0) {
                     //new queue
                     queue.push(process[i]);
@@ -173,6 +176,7 @@ function runProc(ct) {
                 if (process[i][1] == 0) {
                     changeStatus(process[i][3], process[i][1]);
                     TurnAroundTime(ct, process[i][3]);
+                    waitPro[i][3] = 0;
                 }
                 pPrev = [process[i][3], process[i][1]];
                 check = 0;
@@ -181,11 +185,13 @@ function runProc(ct) {
                 changeStatus(queue[0][3], queue[0][1]);
                 queue[0][1] -= 1; //queue brust time
                 changeStatus(queue[0][3], queue[0][1]);
-                console.log("Time : " + ct + " P " + queue[0][3]);
                 ganttChart(ct, queue[0][3]);
+                WaitingTime(ct, queue[0][3]);
+                console.log("Time : " + ct + " P" + queue[0][3]);
                 if (queue[0][1] == 0) {
                     changeStatus(queue[0][3], queue[0][1]);
                     TurnAroundTime(ct, queue[0][3]);
+                    waitPro[queue[0][3]][3] = 0;
                     queue.reverse();
                     queue.pop();
                 }
@@ -197,13 +203,15 @@ function runProc(ct) {
             changeStatus(queue[0][3], queue[0][1]);
             queue[0][1] -= 1; //queue brust time
             changeStatus(queue[0][3], queue[0][1]);
-            console.log("Time : " + ct + ", P" + queue[0][3]);
             ganttChart(ct, queue[0][3]);
+            WaitingTime(ct, queue[0][3]);
+            console.log("Time : " + ct + ", P" + queue[0][3]);
             pPrev = [queue[0][3], queue[0][1]];
 
             if (queue[0][1] == 0) {
                 changeStatus(queue[0][3], queue[0][1]);
                 TurnAroundTime(ct, queue[0][3]);
+                waitPro[queue[0][3]][3] = 0;
                 queue.reverse();
                 queue.pop();
             }
@@ -217,11 +225,12 @@ function runProc(ct) {
 
 function changeStatus(p, s) {
     //pPrev = [process, brust];
-
     if (pPrev[1] <= 0) {
         $("#status_" + pPrev[0]).val('TERMINATED');
     } else {
         $("#status_" + pPrev[0]).val('READY');
+        waitPro[p][0] = cpuStartTime;
+        waitPro[p][2] = 0;
     }
 
     if (s <= 0) {
@@ -231,34 +240,49 @@ function changeStatus(p, s) {
     }
 
 
-
-
 }
 
 function TurnAroundTime(ct, p) {
-    //console.log(newPro);
+    //console.log(turnPro);
     ct++;
-    let cal, c = 0;
+    let c = 0;
 
-    if (newPro[p][4] == 0) {
-        cal = ct - newPro[p][0];
-        newPro[p][4] = 1;
-        newPro[p][5] = cal;
+    if (turnPro[p][4] == 0) {
+        turnPro[p][5] = ct - turnPro[p][0];
+        turnPro[p][4] = 1;
     }
 
     for (let i = 0; i < totalprocess; i++) {
-        if (newPro[i][4] == 0) {
+        if (turnPro[i][4] == 0) {
             tt = 0;
+            c = 0;
             break;
         }
-        if (newPro[i][4] == 1) {
-            tt += newPro[i][5];
+        if (turnPro[i][4] == 1) {
+            tt += turnPro[i][5];
             c = 1;
         }
     }
 
     if (c == 1)
-        $('#TurnAroundTime').text(tt / totalprocess)
-        //console.log();
+        $('#TurnAroundTime').text(tt / totalprocess);
+    //console.log();
 
+}
+
+function WaitingTime(ct, p) {
+    /*
+        if (waitPro[p][2] <= waiPrev)
+            waitPro[p][2] = ct;
+
+        waiPrev = ct;
+
+        if (ct <= cpuEndTime) {
+            for (let i = 0; i < totalprocess; i++) {
+                wt += waitPro[i][2] - waitPro[i][0];
+            }
+
+            $('#WaitingTime').text(wt / totalprocess);
+
+        }*/
 }

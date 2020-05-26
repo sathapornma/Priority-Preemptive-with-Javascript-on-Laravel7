@@ -45,5 +45,6 @@
     <b >CPU End Time : <span id="cpuEndTime"> - </span></b><br>
     <b >CPU Status : <span id="cpuStatus"> - </span></b><br>
     <hr>
-    <b >Turn Around Time : <span id="TurnAroundTime"> - </span></b><br><br><br>
+    <b >Turn Around Time : <span id="TurnAroundTime"> - </span></b><br>
+    <b >Waiting Time : <span id="WaitingTime"> - </span></b><br><br>
 @endsection

@@ -1,23 +1,25 @@
 var totalprocess = 0,
-    maximum = 5,
-    check = 1,
-    tt = 0,
-    wt = 0,
-    pPrev = [],
-    tp = [],
-    wp = [];
+    maximum = 5;
 var cpuStartTime, cpuEndTime;
-var arrivaltime, brusttime, priority; // in array
-var proc = [],
-    process = [],
-    newPro = [],
-    sortEqual = [],
-    queue = [
-        [0, 0, 0]
-    ];
+var arrivaltime = [],
+    bursttime = [],
+    priority = [],
+    proc = [];
+var wt = [0, 0, 0, 0, 0];
+var tat = [0, 0, 0, 0, 0];
+
+var wavg = 0;
+var tavg = 0;
+
+var stime = [0, 0, 0, 0, 0];
+var ctime = [0, 0, 0, 0, 0];
+
 var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4", "#ff8f8f"];
 
 $(function() {
+
+    //console.log(proc);
+
     addPro();
     addPro();
     // add process!
@@ -38,11 +40,12 @@ $(function() {
         getDataProcess();
         Timer = setInterval(function() { timeCounter() }, 1000);
 
+
     });
 });
 
 function addPro() {
-    let process = "<input class='text-center' style='width:" + 40 + "px; background-color:" + color[totalprocess] + "' value='P" + totalprocess + "' disabled>";
+    let process = "<input class='text-center' style='width:" + 40 + "px; background-color:" + color[totalprocess] + "' value='P" + (totalprocess + 1) + "' disabled>";
     let status = "<input type='text' id='status_" + totalprocess + "' value='NEW' disabled>";
     let arr = "<input type='number' id='arr_" + totalprocess + "' value='0'>";
     let bru = "<input type='number' id='brust_" + totalprocess + "' value='0'>";
@@ -77,56 +80,33 @@ function removePro() {
 }
 
 function getDataProcess() {
-
-    proc = []; //Clear the process
-    // get arrival ,brust ,pri
-    // set CPU Time
-    for (let i = 0; i < totalprocess; i++) {
-        arrivaltime = parseInt($("#arr_" + i).val());
-        brusttime = parseInt($("#brust_" + i).val());
-        priority = parseInt($("#pri_" + i).val());
-
-        cpuEndTime += brusttime; //set cpuStartTime by brust
-        proc.push([arrivaltime, brusttime, priority, i]); // push to array
-        newPro.push([arrivaltime, brusttime, priority, i, 0, 0]); // push to array
-
-
-    }
-    swapProcess();
-
-}
-
-function swapProcess() {
-
-    process = []; //Clear the process
-    let arrPrev;
-    //Sort the process with arrival.
-    proc.sort((a, b) => a[0] - b[0]);
-    //Swap the process positions when arrival with equal values.
-    arrPrev = proc[0][0];
+    //Clear the process
+    proc = [];
 
     for (let i = 0; i < totalprocess; i++) {
-        if (proc[i][0] == arrPrev)
-            sortEqual.push(proc[i]);
-        else {
-            sortProcess();
-            process.push(proc[i]);
+
+        let l = [];
+        for (let j = 0; j < 4; j++) {
+            l.push(0);
         }
-        arrPrev = proc[i][0];
+        proc.push(l);
+
+        arrivaltime[i] = parseInt($("#arr_" + i).val());
+        bursttime[i] = parseInt($("#brust_" + i).val());
+        priority[i] = parseInt($("#pri_" + i).val());
+
+        proc[i][0] = arrivaltime[i];
+        proc[i][1] = bursttime[i];
+        proc[i][2] = priority[i];
+        proc[i][3] = i + 1;
+
+        cpuEndTime += bursttime[i];
     }
 
-    process.sort((a, b) => a[0] - b[0]);
-    //console.log(process);
-}
+    proc.sort(key = function(x) { return x[2] });
+    proc.sort();
 
-function sortProcess() {
-    if (Array.isArray(sortEqual) && sortEqual.length) {
-        sortEqual.sort((a, b) => a[2] - b[2]);
-        for (let i = 0; i < sortEqual.length; i++) {
-            process.push(sortEqual[i]);
-        }
-        sortEqual = [];
-    }
+    //console.log(proc);
 }
 
 function ganttChart(ct, pp) {
@@ -141,87 +121,79 @@ function timeCounter() {
         $("#cpuStartTime").text(cpuStartTime);
         $("#cpuEndTime").text(cpuEndTime);
         $("#cpuStatus").html("<b class='text-warning'>Running...</b>");
-        runProc(cpuStartTime);
         cpuStartTime++;
 
     } else {
+        runProc();
         clearInterval(Timer);
         $("#cpuStatus").html("<b class='text-success'>Terminate !!</b>");
     }
 
 }
 
-function runProc(ct) {
-    let i = ct;
+function WaitingTime(wwt) {
+    let service = [0, 0, 0, 0, 0];
 
-    if (Array.isArray(queue) && queue.length) {
-        if (i < totalprocess) {
-            if (process[i][2] <= queue[0][2] || check == 1) {
-                changeStatus(process[i][3], process[i][1]);
-                process[i][1] -= 1; //pro brust time
-                changeStatus(process[i][3], process[i][1]);
-                console.log("Time : " + ct + " P " + process[i][3]);
-                ganttChart(ct, process[i][3]);
-                if (process[i][1] != 0) {
-                    //new queue
-                    queue.push(process[i]);
-                    queue.reverse();
-                    queue.pop();
+    service[0] = 0;
+    wwt[0] = 0;
 
-                    queue.sort((a, b) => a[2] - b[2]);
-                }
-                if (process[i][1] == 0) {
-                    changeStatus(process[i][3], process[i][1]);
-                    TurnAroundTime(ct, process[i][3]);
-                }
-                pPrev = [process[i][3], process[i][1]];
-                check = 0;
+    for (let i = 1; i < totalprocess; i++) {
+        service[i] = proc[i - 1][1] + service[i - 1];
+        wwt[i] = service[i] - proc[i][0] + 1;
 
-            } else {
-                changeStatus(queue[0][3], queue[0][1]);
-                queue[0][1] -= 1; //queue brust time
-                changeStatus(queue[0][3], queue[0][1]);
-                console.log("Time : " + ct + " P " + queue[0][3]);
-                ganttChart(ct, queue[0][3]);
-                if (queue[0][1] == 0) {
-                    changeStatus(queue[0][3], queue[0][1]);
-                    TurnAroundTime(ct, queue[0][3]);
-                    queue.reverse();
-                    queue.pop();
-                }
-                pPrev = [queue[0][3], queue[0][1]];
-                queue.push(process[i]);
-                queue.sort((a, b) => a[2] - b[2]);
-            }
-        } else if (i >= totalprocess) {
-            changeStatus(queue[0][3], queue[0][1]);
-            queue[0][1] -= 1; //queue brust time
-            changeStatus(queue[0][3], queue[0][1]);
-            console.log("Time : " + ct + ", P" + queue[0][3]);
-            ganttChart(ct, queue[0][3]);
-            pPrev = [queue[0][3], queue[0][1]];
-
-            if (queue[0][1] == 0) {
-                changeStatus(queue[0][3], queue[0][1]);
-                TurnAroundTime(ct, queue[0][3]);
-                queue.reverse();
-                queue.pop();
-            }
-
-            queue.sort((a, b) => a[2] - b[2]);
-
-        }
-
+        if (wwt[i] < 0)
+            wwt[i] = 0;
     }
+}
+
+function TurnAroundTime(tatt, wwt) {
+    for (let i = 0; i < totalprocess; i++) {
+        tatt[i] = proc[i][1] + wwt[i];
+    }
+}
+
+function runProc() {
+
+    WaitingTime(wt);
+
+    TurnAroundTime(tat, wt);
+
+    stime[0] = 0;
+    ctime[0] = stime[0] + tat[0];
+
+    for (let i = 1; i < totalprocess; i++) {
+        stime[i] = ctime[i - 1]
+        ctime[i] = stime[i] + tat[i] - wt[i];
+    }
+
+    console.log("Process_no\tStart_time\tComplete_time",
+        "\tTurn_Around_Time\tWaiting_Time");
+    proc.sort();
+    for (let i = 0; i < totalprocess; i++) {
+        wavg += wt[i];
+        tavg += tat[i];
+
+        console.log(proc[i][3] + "\t\t\t\t" + stime[i] + "\t\t\t\t" + ctime[i] + "\t\t\t\t" + tat[i] + "\t\t\t\t\t" + wt[i]);
+        //console.log();
+    }
+
+    console.log("Average waiting time is : " + wavg / totalprocess);
+    console.log("average turnaround time : " + tavg / totalprocess);
+
 }
 
 function changeStatus(p, s) {
     //pPrev = [process, brust];
-
     if (pPrev[1] <= 0) {
         $("#status_" + pPrev[0]).val('TERMINATED');
     } else {
         $("#status_" + pPrev[0]).val('READY');
+        //console.log(pPrev[0]);
+        //console.log(waitPro[pPrev[0]][3]);
+        // [arrivaltime, i, running, status]
+        /*pp = pPrev[0];
+        waitPro[pp][3] = 1; //set status ready.*/
+
     }
 
     if (s <= 0) {
@@ -230,35 +202,5 @@ function changeStatus(p, s) {
         $("#status_" + p).val('RUNNING');
     }
 
-
-
-
-}
-
-function TurnAroundTime(ct, p) {
-    //console.log(newPro);
-    ct++;
-    let cal, c = 0;
-
-    if (newPro[p][4] == 0) {
-        cal = ct - newPro[p][0];
-        newPro[p][4] = 1;
-        newPro[p][5] = cal;
-    }
-
-    for (let i = 0; i < totalprocess; i++) {
-        if (newPro[i][4] == 0) {
-            tt = 0;
-            break;
-        }
-        if (newPro[i][4] == 1) {
-            tt += newPro[i][5];
-            c = 1;
-        }
-    }
-
-    if (c == 1)
-        $('#TurnAroundTime').text(tt / totalprocess)
-        //console.log();
 
 }
