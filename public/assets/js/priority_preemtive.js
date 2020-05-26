@@ -175,9 +175,13 @@ function runProc() {
         console.log(proc[i][3] + "\t\t\t\t" + stime[i] + "\t\t\t\t" + ctime[i] + "\t\t\t\t" + tat[i] + "\t\t\t\t\t" + wt[i]);
         //console.log();
     }
+    tavg /= totalprocess;
+    wavg /= totalprocess;
+    console.log("average turnaround time : " + tavg);
+    console.log("Average waiting time is : " + wavg);
 
-    console.log("Average waiting time is : " + wavg / totalprocess);
-    console.log("average turnaround time : " + tavg / totalprocess);
+    $("#TurnAroundTime").text(tavg);
+    $("#WaitingTime").text(wavg);
 
 }
 
