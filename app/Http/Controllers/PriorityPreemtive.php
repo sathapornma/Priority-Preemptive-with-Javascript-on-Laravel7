@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\history;
+date_default_timezone_set("Asia/Bangkok");
 
 class PriorityPreemtive extends Controller
 {
@@ -37,6 +37,7 @@ class PriorityPreemtive extends Controller
             'avt' =>$request->get('avt'),
             'awt' =>$request->get('awt')
         ]);
+        //dd($history1);
         $history1->save();
         return back()->withInput();
     }

@@ -62,3 +62,7 @@ td.chart.text-right {
 .zero {
     color: black;
 }
+
+.dis {
+    background-color: transparent;
+}

@@ -20,7 +20,6 @@
                           <th scope="col">AMOUNT</th>
                           <th scope="col">AVT</th>
                           <th scope="col">AWT</th>
-                          <th scope="col">CREATED AT</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -30,7 +29,6 @@
                                 <td>{{$row['amount']}}</td>
                                 <td>{{$row['avt']}}</td>
                                 <td>{{$row['awt']}}</td>
-                                <td>{{$row['created_at']}}</td>
                             </tr>
                         @endforeach
                       </tbody>
