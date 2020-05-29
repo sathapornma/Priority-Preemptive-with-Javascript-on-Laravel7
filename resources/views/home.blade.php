@@ -35,16 +35,21 @@
             <button class="btn btn-danger remove-pro">Remove Process</button>
             <button class="btn btn-primary add-pro">Add Process</button>
             <button class="btn btn-success run-pro">Run Process</button>
+            <button type="submit" class="btn btn-success" onclick="$('#myForm').submit()">Save</button>
         </div>
     </div>
     <hr>
     <h4>Gantt Chart</h4>
     <div class="progress"></div>
     <br><br>
-    <b >CPU Time : <span id="cpuStartTime"> - </span></b><br>
-    <b >CPU End Time : <span id="cpuEndTime"> - </span></b><br>
-    <b >CPU Status : <span id="cpuStatus"> - </span></b><br>
-    <hr>
-    <b >Turn Around Time : <span id="TurnAroundTime"> - </span></b><br>
-    <b >Waiting Time : <span id="WaitingTime"> - </span></b><br><br>
+    <form id="myForm" action="{{url('/')}}" method="post">
+        {{ csrf_field() }}
+        <b >Total Process : </b><input class="dis" id="totalprocess" value="-" name="amount"><br>
+        <b >CPU Time : </b><input class="dis" id="cpuStartTime" value="-"><br>
+        <b >CPU End Time : </b><input class="dis" id="cpuEndTime" value="-"><br>
+        <b >CPU Status : </b><span class="dis" id="cpuStatus"> - </span><br>
+        <hr>
+        <b >Turn Around Time : </b><input class="dis" id="TurnAroundTime" value="-" name="avt">&nbsp; &nbsp;
+        <b >Waiting Time : </b><input class="dis" id="WaitingTime" value="-" name="awt">
+    </form>
 @endsection

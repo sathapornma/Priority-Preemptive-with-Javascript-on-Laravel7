@@ -58,3 +58,7 @@ td.chart.text-right {
 .TERMINATED {
     color: #28a745;
 }
+
+.zero {
+    color: black;
+}

@@ -13,8 +13,9 @@ var tavg = 0;
 
 var stime = [0, 0, 0, 0, 0];
 var ctime = [0, 0, 0, 0, 0];
-
+//[red,orange,green,sky,purple,pink]
 var color = ["#fc0303", "#fcba03", "#03fc07", "#03fcf0", "#fc03f4", "#ff8f8f"];
+
 
 $(function() {
 
@@ -38,10 +39,11 @@ $(function() {
         cpuStartTime = 0;
         cpuEndTime = 0;
         getDataProcess();
+        runProc();
         Timer = setInterval(function() { timeCounter() }, 1000);
-
-
     });
+
+    
 });
 
 function addPro() {
@@ -62,6 +64,7 @@ function addPro() {
     if (totalprocess < maximum) {
         $(".tprocess tbody").append(markup);
         totalprocess++;
+        $("#totalprocess").val(totalprocess);
     } else {
         alert("Sorry!! : Process is maximumimum " + maximum + ".");
     }
@@ -73,6 +76,7 @@ function removePro() {
         if (c == true) {
             $(".tbprocess tr:last").remove();
             totalprocess--;
+            $("#totalprocess").val(totalprocess);
         }
     } else {
         alert("Sorry!! : Process is minimum " + totalprocess + ".");
@@ -109,22 +113,23 @@ function getDataProcess() {
     //console.log(proc);
 }
 
-function ganttChart(ct, pp) {
+function ganttChart(p, c) {
     let makeChart;
-    makeChart = "<div class='progress-bar progress-bar-striped progress-bar-animated' role='progressbar' style='width:" + ct + 10 + "%; background-color:" + color[pp] + "' aria-valuenow='" + ct + "' aria-valuemin=" + 0 + "' aria-valuemax='100'>" + ct + "</div>";
+    makeChart = "<div class='progress-bar progress-bar-striped progress-bar-animated text-right' role='progressbar' style='width:" + c + 20 + "%; background-color:" + color[p - 1] + "' aria-valuenow='" + c + "' aria-valuemin=" + 0 + "' aria-valuemax='100'>" + c + "</div>";
     $(".progress").append(makeChart);
 
 }
 
 function timeCounter() {
+
+    changeStatus(cpuStartTime);
+
     if (cpuStartTime <= cpuEndTime) {
-        $("#cpuStartTime").text(cpuStartTime);
-        $("#cpuEndTime").text(cpuEndTime);
+        $("#cpuStartTime").val(cpuStartTime);
+        $("#cpuEndTime").val(cpuEndTime);
         $("#cpuStatus").html("<b class='text-warning'>Running...</b>");
         cpuStartTime++;
-
     } else {
-        runProc();
         clearInterval(Timer);
         $("#cpuStatus").html("<b class='text-success'>Terminate !!</b>");
     }
@@ -166,44 +171,40 @@ function runProc() {
         ctime[i] = stime[i] + tat[i] - wt[i];
     }
 
-    console.log("Process_no\tStart_time\tComplete_time",
-        "\tTurn_Around_Time\tWaiting_Time");
+    /*console.log("Process_no\tStart_time\tComplete_time",
+        "\tTurn_Around_Time\tWaiting_Time");*/
     for (let i = 0; i < totalprocess; i++) {
         wavg += wt[i];
         tavg += tat[i];
 
-        console.log(proc[i][3] + "\t\t\t\t" + stime[i] + "\t\t\t\t" + ctime[i] + "\t\t\t\t" + tat[i] + "\t\t\t\t\t" + wt[i]);
+        /*console.log(proc[i][3] + "\t\t\t\t" + stime[i] + "\t\t\t\t" + ctime[i] + "\t\t\t\t" + tat[i] + "\t\t\t\t\t" + wt[i]);*/
         //console.log();
+        ganttChart(proc[i][3], ctime[i]);
     }
     tavg /= totalprocess;
     wavg /= totalprocess;
-    console.log("average turnaround time : " + tavg);
-    console.log("Average waiting time is : " + wavg);
+    /*console.log("average turnaround time : " + tavg);
+    console.log("Average waiting time is : " + wavg);*/
 
-    $("#TurnAroundTime").text(tavg);
-    $("#WaitingTime").text(wavg);
+    $("#TurnAroundTime").val(tavg);
+    $("#WaitingTime").val(wavg);
 
 }
 
-function changeStatus(p, s) {
-    //pPrev = [process, brust];
-    if (pPrev[1] <= 0) {
-        $("#status_" + pPrev[0]).val('TERMINATED');
-    } else {
-        $("#status_" + pPrev[0]).val('READY');
-        //console.log(pPrev[0]);
-        //console.log(waitPro[pPrev[0]][3]);
-        // [arrivaltime, i, running, status]
-        /*pp = pPrev[0];
-        waitPro[pp][3] = 1; //set status ready.*/
+function changeStatus(t) {
+    for (let i = 0; i < totalprocess; i++) {
+        //console.log(proc[i][3]);
+        //console.log(t);
+        if (stime[i] == t) {
+            if (t <= ctime[i])
+                $("#status_" + (proc[i][3] - 1)).val('RUNNING');
 
+        } else if (ctime[i] == t) {
+            $("#status_" + (proc[i][3] - 1)).val('TERMINATED');
+        }
+
+        /*else {
+            $("#status_" + proc[i][3]).val('READY');
+        }*/
     }
-
-    if (s <= 0) {
-        $("#status_" + p).val('TERMINATED');
-    } else {
-        $("#status_" + p).val('RUNNING');
-    }
-
-
 }
